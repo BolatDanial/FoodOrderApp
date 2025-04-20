@@ -1,21 +1,26 @@
 <?php
 namespace App\Service;
 
-use App\Models\Menu;
+use App\Models\Order;
+use Illuminate\Http\Request;
 
 class OrderService {
-    public function add(array $data): Menu
+    public function add(Request $request): Order
     {
-        $position = new Menu;
-        $position->name =  $data['name'];
-        $position->content =   $data['content'];
-        $position->description =  $data['description'];
-        $position->price =   $data['price'];
+        $data = $request->all();
 
-        return $position;
+        $order = new Order;
+        $order->status =  $data['status'];
+        $order->price =   $data['price'];
+
+        $order->user_id = $request->user()->id;
+        $order->save();
+
+        $order->menu()->attach($data['content']);
+        return $order;
     }
 
-    public function update(Menu $position, array $data)
+    public function update(Order $position, array $data)
     {
         foreach($data as $key => $value){
             if ($data[$key] != null && $data[$key] != '' && $data[$key] != 'null') {
